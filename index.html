@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Happy Birthday 💌</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,500&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#fdf0f5;--bg2:#ece4fa;--ink:#4a3a63;--soft:#8c7aa8;--pink:#f6a9c6;--lav:#b9a6ef;--card:#fffaf3;--glow:rgba(246,169,198,.55);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme=light]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg1:#2a2140;--bg2:#1c1630;--ink:#f3e9ff;--soft:#b7a8d6;--card:#3a2f57;--glow:rgba(185,166,239,.45)}}
+:root[data-theme=dark]{--bg1:#2a2140;--bg2:#1c1630;--ink:#f3e9ff;--soft:#b7a8d6;--card:#3a2f57;--glow:rgba(185,166,239,.45)}
+*{box-sizing:border-box;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:Nunito,system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed;min-height:100vh;overflow-x:hidden}
+h1,h2,.serif{font-family:'Playfair Display',Georgia,serif;font-weight:500}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+#intro{position:fixed;inset:0;z-index:40;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 50% 40%,var(--bg1),var(--bg2));transition:opacity 1.2s,transform 1.2s}
+#intro.out{opacity:0;transform:scale(1.08);pointer-events:none}
+#line{font-size:clamp(1.7rem,6vw,3.4rem);padding:0 24px;max-width:900px;line-height:1.3;opacity:0;filter:blur(10px);transform:translateY(14px);transition:all 1.1s ease}
+#line.on{opacity:1;filter:blur(0);transform:none}
+#line.big{font-size:clamp(2.6rem,10vw,6rem);background:linear-gradient(90deg,#e98bb5,#9c83e8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;transition:transform .3s}
+#skip{position:fixed;right:16px;top:calc(14px + env(safe-area-inset-top,0px));z-index:45;background:none;border:0;color:var(--soft);opacity:.55;font:inherit;font-size:.85rem;cursor:pointer;padding:8px}
+#skip:hover{opacity:1}
+main{max-width:980px;margin:0 auto;padding:48px 18px 90px;opacity:0;transition:opacity 1.2s}
+main.on{opacity:1}
+header{text-align:center;margin-bottom:28px}
+header h1{font-size:clamp(1.7rem,5vw,2.6rem)}
+#count{color:var(--soft);margin-top:6px}
+#count b{display:inline-block;color:var(--ink)}
+#count b.bump{animation:bump .5s}
+@keyframes bump{50%{transform:scale(1.5);color:#e98bb5}}
+.sub{color:var(--soft);font-style:italic;margin-top:4px;font-size:.95rem}
+#grid,#arch{display:flex;flex-wrap:wrap;justify-content:center;gap:22px 18px;padding:18px 0;min-height:120px}
+.gift{width:128px;height:158px;position:relative;cursor:pointer;border:0;background:none;transform:rotate(var(--r)) translate(var(--x),var(--y));transition:transform .35s cubic-bezier(.2,.9,.3,1.3),opacity .5s,filter .35s;animation:float 5s ease-in-out infinite;animation-delay:var(--d);-webkit-tap-highlight-color:transparent}
+@keyframes float{50%{margin-top:-6px;margin-bottom:6px}}
+.gift .body{position:absolute;inset:0;border-radius:14px;background:linear-gradient(145deg,var(--c1),var(--c2));box-shadow:0 8px 18px rgba(120,90,160,.2);transition:box-shadow .35s;overflow:hidden}
+.gift .body:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:20px;margin-left:-10px;background:rgba(255,255,255,.55)}
+.gift .body:after{content:"";position:absolute;top:50%;left:0;right:0;height:20px;margin-top:-10px;background:rgba(255,255,255,.4)}
+.gift .seal{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff9dbd,#d9568a);color:#fff;display:grid;place-items:center;font-size:1.1rem;z-index:2;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.gift:hover,.gift:focus-visible{transform:rotate(calc(var(--r)*-.4)) translate(var(--x),calc(var(--y) - 10px)) scale(1.06);outline:0}
+.gift:hover .body,.gift:focus-visible .body{box-shadow:0 18px 30px rgba(120,90,160,.3),0 0 26px var(--glow)}
+.gift.read{filter:grayscale(.55) opacity(.7);animation:none;width:96px;height:118px}
+.gift.read .seal{background:#b9b0c9;font-size:.9rem;width:30px;height:30px;margin:-15px}
+.gift.fade{opacity:.15;transform:scale(.8);pointer-events:none}
+.gift.pop{animation:pop .9s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes pop{from{opacity:0;transform:translateY(-120px) scale(.3) rotate(25deg)}}
+.empty{color:var(--soft);text-align:center;font-style:italic;padding:20px;width:100%}
+details{margin-top:34px;opacity:.85}
+summary{cursor:pointer;text-align:center;color:var(--soft);font-family:'Playfair Display',serif;list-style:none;padding:10px}
+summary::-webkit-details-marker{display:none}
+#leave{display:block;margin:46px auto 0;background:none;border:0;color:var(--soft);opacity:.5;font:inherit;font-size:.85rem;cursor:pointer;transition:.3s;padding:10px}
+#leave:hover{opacity:1;letter-spacing:.04em}
+#leave.hid{display:none}
+.ov{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:rgba(60,40,90,.4);backdrop-filter:blur(6px);padding:18px}
+.ov.on{display:grid;animation:fi .4s}
+@keyframes fi{from{opacity:0}}
+.env{position:relative;width:min(92vw,400px);perspective:900px}
+.note{background:var(--card);border-radius:18px;padding:34px 26px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 40px var(--glow);transform-origin:bottom;animation:unfold .9s cubic-bezier(.2,.9,.3,1) both}
+@keyframes unfold{from{transform:translateY(120px) scale(.3) rotateX(70deg);opacity:0}60%{opacity:1}}
+.note .from{font-size:.8rem;color:var(--soft);letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:up .6s .7s forwards}
+.note h2{font-size:1.5rem;margin:4px 0 14px;opacity:0;animation:up .6s .85s forwards}
+.note p{line-height:1.7;font-size:1.05rem;white-space:pre-wrap;max-height:46vh;overflow:auto;opacity:0;animation:up .8s 1.1s forwards;text-align:left}
+.note .btn{opacity:0}.note.done .btn{animation:up .5s forwards}.t:after{content:"";display:inline-block;width:2px;height:1em;background:var(--soft);margin-left:2px;vertical-align:text-bottom;animation:bl .8s steps(1) infinite}.note.done .t:after{display:none}@keyframes bl{50%{opacity:0}}.h{visibility:hidden}
+.note.old .from,.note.old h2,.note.old p{animation-delay:.3s}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.flap{position:absolute;left:0;right:0;top:-2px;height:60px;background:linear-gradient(#f6a9c6,#e98bb5);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;animation:flap .6s .1s forwards;z-index:3;border-radius:18px 18px 0 0}
+@keyframes flap{to{transform:rotateX(180deg);opacity:0}}
+.btn{margin-top:18px;border:0;border-radius:999px;padding:12px 24px;font:inherit;font-weight:600;color:#fff;background:linear-gradient(90deg,#ec8db6,#a68cf0);cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 16px var(--glow)}
+.btn:hover{transform:translateY(-2px) scale(1.04)}.btn:active{transform:scale(.96)}
+.btn.ghost{background:none;color:var(--soft);box-shadow:none;margin-left:6px}
+.note.away{animation:away .7s forwards}
+@keyframes away{to{transform:translateY(60vh) scale(.2) rotate(8deg);opacity:0}}
+.frm{background:var(--card);border-radius:18px;padding:26px;width:min(92vw,400px);box-shadow:0 20px 60px rgba(0,0,0,.3);animation:up .5s both;text-align:center}
+.frm h2{margin-bottom:14px}
+input,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:rgba(185,166,239,.15);border:1.5px solid transparent;border-radius:12px;padding:12px;margin-bottom:12px;resize:none;transition:.2s}
+input:focus,textarea:focus{outline:0;border-color:var(--lav);box-shadow:0 0 0 4px var(--glow)}
+.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#msg{min-height:1.4em;color:#d9568a;margin-bottom:6px;font-size:.95rem}
+#final{text-align:center;margin-top:30px;display:none}
+#final.on{display:block;animation:up 1s both}
+#final h2{font-size:1.8rem;margin-bottom:8px}
+.packet{position:relative;width:min(80vw,290px);height:190px;margin:0 auto;border-radius:16px;background:linear-gradient(145deg,var(--c1),var(--c2));box-shadow:0 20px 50px rgba(0,0,0,.3),0 0 40px var(--glow);cursor:pointer;display:grid;place-items:center;animation:rise .6s cubic-bezier(.2,.9,.3,1.2);-webkit-tap-highlight-color:transparent;user-select:none}
+@keyframes rise{from{transform:translateY(80px) scale(.6);opacity:0}}
+.packet:before{content:"";position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,transparent 49%,rgba(255,255,255,.35) 50%,transparent 51%),linear-gradient(225deg,transparent 49%,rgba(255,255,255,.35) 50%,transparent 51%)}
+.sflap{position:absolute;left:0;right:0;top:0;height:105px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.25));clip-path:polygon(0 0,100% 0,50% 100%);border-radius:16px 16px 0 0;transform-origin:top;transition:transform .3s}
+.psl{position:relative;z-index:2;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff9dbd,#d9568a);color:#fff;display:grid;place-items:center;font-size:1.4rem;box-shadow:0 3px 8px rgba(0,0,0,.3);transition:transform .25s}
+.wig{animation:wig .35s}@keyframes wig{25%{transform:rotate(-4deg) scale(1.04)}75%{transform:rotate(4deg) scale(1.04)}}
+.hint{text-align:center;color:#fff;margin-top:20px;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.dots{display:flex;gap:8px;justify-content:center;margin-top:10px}.dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.4);transition:.3s}.dots i.on{background:#fff;transform:scale(1.35)}
+@media (max-width:520px){.gift{width:104px;height:130px}.gift .seal{width:36px;height:36px;margin:-18px}.gift.read{width:80px;height:100px}main{padding-top:36px}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+</style></head><body>
+<canvas id="fx"></canvas>
+<div id="intro"><div class="orb" style="width:340px;height:340px;background:#f6a9c6;left:8%;top:10%" data-p="20"></div><div class="orb" style="width:380px;height:380px;background:#b9a6ef;right:5%;bottom:5%" data-p="-28"></div><div id="line" class="serif"></div></div>
+<button id="skip">skip</button>
+<main id="main">
+ <header><h1 id="title">Someone left you a few things…</h1><p class="sub" id="sub">Which one are you opening first? 👀</p><p id="count"></p></header>
+ <section id="grid" aria-label="Unread messages"></section>
+ <div id="final"><h2 class="serif">Looks like you've found them all ❤️</h2><p>Every one of these came from someone who's glad you exist.<br>Happy Birthday — may this year be gentle, bright, and full of good surprises. 🎂</p></div>
+ <details id="archWrap"><summary>Already Read 📖 (<span id="ac">0</span>)</summary><section id="arch"></section></details>
+ <button id="leave" class="hid">Leave one too ✍️</button>
+</main>
+<div class="ov" id="ov"></div>
+<script>
+const $=s=>document.querySelector(s);
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let msgs=[],read=new Set(LS.get('bday_read',[])),col=null,introDone=false,celebrated=false;
+/* ---------- particles ---------- */
+const cv=$('#fx'),cx=cv.getContext('2d');let W,H,P=[];
+function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}rs();addEventListener('resize',rs);
+const sy=['✦','♥','✧','♡','•'],cols=['#f6a9c6','#b9a6ef','#ffd9a8','#fff','#ec8db6'];
+function spawn(n,x,y,burst,glyph){for(let i=0;i<n;i++){const a=Math.random()*6.28,s=burst?2+Math.random()*6:0;P.push({x:x??Math.random()*W,y:y??(burst?H/2:H+10),vx:burst?Math.cos(a)*s:(Math.random()-.5)*.4,vy:burst?Math.sin(a)*s-3:-.4-Math.random()*.8,g:burst?.15:0,life:burst?90+Math.random()*50:400+Math.random()*300,s:8+Math.random()*14,c:cols[i%5],t:glyph||sy[i%5],r:Math.random()*6,vr:(Math.random()-.5)*.1})}}
+function loop(){cx.clearRect(0,0,W,H);for(let i=P.length-1;i>=0;i--){const p=P[i];p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.r+=p.vr;p.life--;if(p.life<=0||p.y<-30){P.splice(i,1);continue}cx.globalAlpha=Math.min(1,p.life/40)*.8;cx.fillStyle=p.c;cx.font=p.s+'px sans-serif';cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillText(p.t,0,0);cx.restore()}if(!document.hidden&&Math.random()<.12&&P.length<70)spawn(1);requestAnimationFrame(loop)}
+spawn(30);loop();
+addEventListener('pointermove',e=>{const dx=(e.clientX/W-.5),dy=(e.clientY/H-.5);document.querySelectorAll('.orb').forEach(o=>o.style.transform=`translate(${dx*o.dataset.p*2}px,${dy*o.dataset.p*2}px)`)});
+/* ---------- intro ---------- */
+const lines=[["Hey you…",1500],["Someone left something for you 👀",1900],["Actually… more than one thing.",1900],["A few people wanted to say something.",2000],["Some are sweet…",1500],["Some are probably suspicious…",1800],["But they're all for you ❤️",1900],["Happy Birthday!",2400]];
+let timers=[];
+function runIntro(){let t=300;lines.forEach(([txt,d],i)=>{const last=i==lines.length-1;timers.push(setTimeout(()=>{const l=$('#line');l.classList.remove('on');setTimeout(()=>{l.textContent=txt;l.classList.toggle('big',last);l.classList.add('on');if(last){spawn(70,W/2,H/2,true)}},i?450:0)},t));t+=d+(i?450:0)});timers.push(setTimeout(endIntro,t+300))}
+function endIntro(){if(introDone)return;introDone=true;timers.forEach(clearTimeout);spawn(40,W/2,H/2,true);$('#intro').classList.add('out');$('#skip').style.display='none';$('#main').classList.add('on');$('#leave').classList.remove('hid');setTimeout(()=>$('#intro').remove(),1300)}
+$('#skip').onclick=endIntro;runIntro();
+/* ---------- cards ---------- */
+const pal=[["#ffc9dc","#f6a9c6"],["#d9ccff","#b9a6ef"],["#ffe3c7","#f8c7a0"],["#c9e6ff","#a9c8f5"],["#e9d1ff","#d3a9f0"]],em=['♥','★','✿','☾','✦'];
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rnd(id,k){return ((hash(id+k)%1000)/1000)}
+function mk(m,isNew){const b=document.createElement('button');b.className='gift'+(read.has(m.id)?' read':'')+(isNew?' pop':'');const c=pal[hash(m.id)%5];
+b.style.cssText=`--r:${(rnd(m.id,'r')*10-5).toFixed(1)}deg;--x:${(rnd(m.id,'x')*10-5).toFixed(0)}px;--y:${(rnd(m.id,'y')*14-7).toFixed(0)}px;--d:${(rnd(m.id,'d')*3).toFixed(1)}s;--c1:${c[0]};--c2:${c[1]}`;
+b.innerHTML=`<div class="body"></div><div class="seal">${read.has(m.id)?'✓':em[hash(m.id+'e')%5]}</div>`;b.setAttribute('aria-label',read.has(m.id)?'Read message':'Unread surprise');b.onclick=()=>openCard(m,b);b.dataset.id=m.id;return b}
+function render(newId){const g=$('#grid'),a=$('#arch');g.innerHTML=a.innerHTML='';
+const sorted=[...msgs].sort((x,y)=>hash(x.id)-hash(y.id));
+const un=sorted.filter(m=>!read.has(m.id)),rd=sorted.filter(m=>read.has(m.id));
+un.forEach(m=>g.appendChild(mk(m,m.id===newId)));rd.forEach(m=>a.appendChild(mk(m)));
+if(!un.length)g.innerHTML=`<p class="empty">${msgs.length?'All opened ✨ — they\'re safe in the archive below.':'No surprises yet… check back soon 🎁'}</p>`;
+if(!rd.length)a.innerHTML='<p class="empty">Nothing here yet — opened gifts rest here 🌙</p>';
+const n=un.length,cEl=$('#count');cEl.innerHTML=n?`<b>${n}</b> little surprise${n>1?'s':''} waiting for you 💌`:(msgs.length?'No surprises left 💌':'');
+$('#ac').textContent=rd.length;$('#title').textContent=n?'Messages For You 💌':'Looks like you\'ve found them all ❤️';$('#sub').style.display=n?'':'none';
+$('#final').classList.toggle('on',!n&&msgs.length>0);
+$('#archWrap').style.display=msgs.length?'':'none'}
+function bump(){const b=$('#count b');if(b){b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump')}}
+/* ---------- open ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let ty=0;
+function typeInto(p,text,done){const t=p.querySelector('.t'),h=p.querySelector('.h'),id=++ty;let i=0,fin=false;
+const end=()=>{if(fin)return;fin=true;t.textContent=text;h.textContent='';done()};p.onclick=end;
+(function tick(){if(id!==ty||fin)return;i++;t.textContent=text.slice(0,i);h.textContent=text.slice(i);if(i>=text.length)return end();
+const c=text[i-1];let d=26+Math.random()*24;if(',;:'.includes(c))d+=200;else if('.!?…'.includes(c))d+=420;else if(c==='\n')d+=380;setTimeout(tick,d)})()}
+function openCard(m,el){const old=read.has(m.id),NEED=3;let taps=0,busy=false;
+document.querySelectorAll('#grid .gift').forEach(g=>{if(g!==el)g.classList.add('fade')});
+const ov=$('#ov'),c1=el.style.getPropertyValue('--c1'),c2=el.style.getPropertyValue('--c2');
+ov.innerHTML=`<div class="env"><div class="packet" id="pk" style="--c1:${c1};--c2:${c2}"><div class="sflap" id="sf"></div><div class="psl" id="ps">${el.querySelector('.seal').textContent}</div></div><p class="hint" id="hint">Tap to open…</p><div class="dots">${'<i></i>'.repeat(NEED)}</div></div>`;
+setTimeout(()=>ov.classList.add('on'),150);
+const close=()=>{ty++;ov.classList.remove('on');ov.innerHTML='';document.querySelectorAll('.gift.fade').forEach(g=>g.classList.remove('fade'))};
+ov.onclick=e=>{if(e.target===ov)close()};
+const pk=$('#pk');pk.onclick=()=>{if(busy)return;taps++;pk.classList.remove('wig');void pk.offsetWidth;pk.classList.add('wig');
+const r=pk.getBoundingClientRect();spawn(6+taps*4,r.left+r.width/2,r.top+r.height/2,true,'♥');
+ov.querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('on',i<taps));$('#sf').style.transform=`rotateX(${taps*-14}deg)`;$('#ps').style.transform=`scale(${1+taps*.12})`;
+if(taps<NEED){$('#hint').textContent=NEED-taps===1?'One more…':'Keep going…';return}
+busy=true;$('#hint').textContent='✨';setTimeout(reveal,320)};
+function reveal(){ov.innerHTML=`<div class="env"><div class="flap"></div><div class="note ${old?'old':''}"><div class="from">from</div><h2 class="serif">${esc(m.nick||'Anonymous')}</h2><p><span class="t"></span><span class="h">${esc(m.text)}</span></p>${old?'<button class="btn ghost" id="cl">Close</button>':'<button class="btn" id="mr">Mark as Read ❤️</button><button class="btn ghost" id="cl">Later</button>'}</div></div>`;
+if(old)ov.querySelector('.flap').remove();
+if(!old)setTimeout(()=>spawn(24,innerWidth/2,innerHeight/2,true),400);
+const note=ov.querySelector('.note');$('#cl').onclick=close;
+setTimeout(()=>typeInto(note.querySelector('p'),m.text,()=>note.classList.add('done')),old?500:1100);
+const mr=$('#mr');if(mr)mr.onclick=()=>{ty++;note.classList.add('away');spawn(18,innerWidth/2,innerHeight/2,true,'✦');setTimeout(()=>{read.add(m.id);LS.set('bday_read',[...read]);Store.update(m.id,{read:true});close();render();bump();checkEnd()},650)}}}
+function checkEnd(){if(msgs.length&&msgs.every(m=>read.has(m.id))&&!celebrated){celebrated=true;setTimeout(()=>{for(let i=0;i<4;i++)setTimeout(()=>spawn(40,Math.random()*W,H*.4,true,sy[i%4]),i*350);$('#final').scrollIntoView({behavior:'smooth',block:'center'})},500)}}
+/* ---------- add message ---------- */
+$('#leave').onclick=()=>{const ov=$('#ov');ov.innerHTML=`<div id="pw" class="frm"><h2 class="serif">Psst… password? 🔑</h2><input id="pi" type="password" placeholder="Secret word" autocomplete="off"><div id="msg"></div><button class="btn" id="go" type="button">Enter</button><button type="button" class="btn ghost" id="x">Cancel</button></div>`;ov.classList.add('on');
+const f=$('#pw');setTimeout(()=>$('#pi').focus(),100);$('#x').onclick=()=>{ov.classList.remove('on');ov.innerHTML=''};
+ov.onclick=e=>{if(e.target===ov){ov.classList.remove('on');ov.innerHTML=''}};
+const go=()=>{if($('#pi').value==='0')compose();else{$('#msg').textContent='Nice try 👀';f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');$('#pi').value=''}};$('#go').onclick=go;$('#pi').onkeydown=e=>{if(e.key==='Enter')go()}};
+function compose(){const ov=$('#ov');ov.innerHTML=`<div id="cf" class="frm"><h2 class="serif">Leave a little something ✍️</h2><input id="ni" maxlength="30" placeholder="Nickname (e.g. Your Secret Friend)"><textarea id="mi" rows="5" maxlength="800" placeholder="Write your message…" required></textarea><div id="msg"></div><button class="btn" id="send" type="button">Wrap it up 🎁</button><button type="button" class="btn ghost" id="x">Cancel</button></div>`;
+$('#x').onclick=()=>{ov.classList.remove('on');ov.innerHTML=''};$('#mi').focus();
+const send=async()=>{const text=$('#mi').value.trim();if(!text)return;const m={id:'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nick:$('#ni').value.trim()||'Anonymous',text,t:Date.now()};
+ov.classList.remove('on');ov.innerHTML='';await save(m);spawn(30,innerWidth/2,innerHeight/2,true);window.scrollTo({top:0,behavior:'smooth'})};$('#send').onclick=send}
+/* ---------- storage layer (swap adapters without touching the UI) ----------
+   Main message data lives behind /api/messages (see api/messages.js, Vercel-ready).
+   Inside Claude's artifact viewer, where no such API exists, it uses the artifact's shared db.
+   Message shape: {id, nick, text, t, read} */
+const API='/api/messages';
+const Store={mode:'none',col:null,
+async init(){try{const r=await fetch(API,{cache:'no-store'});if(r.ok&&(r.headers.get('content-type')||'').includes('json')){this.mode='api';return}}catch(e){}
+try{const db=await claude.use('db');if(db){this.col=db.collection('msgs');this.mode='db'}}catch(e){}},
+subscribe(cb){if(this.mode==='api'){const pull=async()=>{if(document.hidden)return;try{const r=await fetch(API,{cache:'no-store'});cb(await r.json())}catch(e){}};pull();setInterval(pull,15000)}
+else if(this.mode==='db')this.col.onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),()=>{});else cb([])},
+async add(m){try{if(this.mode==='api')await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(m)});else if(this.mode==='db')await this.col.doc(m.id).set(m)}catch(e){}},
+async update(id,patch){try{if(this.mode==='api')await fetch(API,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...patch})});else if(this.mode==='db')await this.col.doc(id).update(patch)}catch(e){}}};
+async function save(m){msgs.push(m);render(m.id);bump();Store.add(m)}
+let first=true;
+function apply(list){const prev=new Set(msgs.map(m=>m.id));msgs=list;msgs.forEach(m=>{if(m.read)read.add(m.id)});const added=msgs.find(m=>!prev.has(m.id));render(!first&&added?added.id:null);if(!first&&added)bump();first=false;if(celebrated&&msgs.some(m=>!read.has(m.id)))celebrated=false}
+(async()=>{await Store.init();Store.subscribe(apply)})();
+render();
+</script></body></html>
