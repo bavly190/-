@@ -88,6 +88,7 @@ input:focus,textarea:focus{outline:0;border-color:var(--lav);box-shadow:0 0 0 4p
 .dots{display:flex;gap:8px;justify-content:center;margin-top:10px}.dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.4);transition:.3s}.dots i.on{background:#fff;transform:scale(1.35)}
 @media (max-width:520px){.gift{width:104px;height:130px}.gift .seal{width:36px;height:36px;margin:-18px}.gift.read{width:80px;height:100px}main{padding-top:36px}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);z-index:70;background:var(--card);color:var(--ink);padding:12px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.4s;max-width:90vw;text-align:center;font-size:.95rem}#toast.on{opacity:1;transform:translate(-50%,0)}
 </style></head><body>
 <canvas id="fx"></canvas>
 <div id="intro"><div class="orb" style="width:340px;height:340px;background:#f6a9c6;left:8%;top:10%" data-p="20"></div><div class="orb" style="width:380px;height:380px;background:#b9a6ef;right:5%;bottom:5%" data-p="-28"></div><div id="line" class="serif"></div></div>
@@ -180,17 +181,39 @@ ov.classList.remove('on');ov.innerHTML='';await save(m);spawn(30,innerWidth/2,in
    Inside Claude's artifact viewer, where no such API exists, it uses the artifact's shared db.
    Message shape: {id, nick, text, t, read} */
 const API='/api/messages';
+const toast=t=>{let e=$('#toast');if(!e){e=document.createElement('div');e.id='toast';document.body.appendChild(e)}e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),6000)};
+/* Anything that fails to reach the server waits in this queue (also kept in localStorage) and is retried until it succeeds. */
+let queue=LS.get('bday_queue',[]),flushing=false;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const isJson=r=>(r.headers.get('content-type')||'').includes('json');
+async function send1(op){try{const r=await fetch(API,{method:op.method,headers:{'Content-Type':'application/json'},body:JSON.stringify(op.body)});
+if(r.ok||r.status===409)return true;
+if(isJson(r)&&(r.status===400||(op.method==='PATCH'&&r.status===404)))return true;
+return false}catch(e){return false}}
+async function flush(){if(flushing||Store.mode!=='api'||!queue.length)return;flushing=true;let failed=false;
+while(queue.length){let ok=false;for(let i=0;i<3&&!ok;i++){ok=await send1(queue[0]);if(!ok)await sleep(600*(i+1))}
+if(!ok){failed=true;break}queue.shift();LS.set('bday_queue',queue)}
+flushing=false;if(failed)toast("Couldn't reach the server yet — retrying. Please keep this page open 💌")}
+function enqueue(method,body){queue.push({method,body});LS.set('bday_queue',queue);return flush()}
 const Store={mode:'none',col:null,
-async init(){try{const r=await fetch(API,{cache:'no-store'});if(r.ok&&(r.headers.get('content-type')||'').includes('json')){this.mode='api';return}}catch(e){}
+async init(){try{const r=await fetch(API,{cache:'no-store'});if(isJson(r)){this.mode='api';return}}catch(e){}
+if(typeof claude==='undefined'){this.mode='api';return}
 try{const db=await claude.use('db');if(db){this.col=db.collection('msgs');this.mode='db'}}catch(e){}},
-subscribe(cb){if(this.mode==='api'){const pull=async()=>{if(document.hidden)return;try{const r=await fetch(API,{cache:'no-store'});cb(await r.json())}catch(e){}};pull();setInterval(pull,15000)}
+subscribe(cb){if(this.mode==='api'){const pull=async()=>{if(document.hidden)return;
+try{const r=await fetch(API,{cache:'no-store'});const list=await r.json();if(r.ok&&Array.isArray(list))cb(list)}catch(e){}
+flush()};
+pull();setInterval(pull,15000);addEventListener('online',pull);document.addEventListener('visibilitychange',pull)}
 else if(this.mode==='db')this.col.onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),()=>{});else cb([])},
-async add(m){try{if(this.mode==='api')await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(m)});else if(this.mode==='db')await this.col.doc(m.id).set(m)}catch(e){}},
-async remove(id){try{if(this.mode==='api')await fetch(API,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});else if(this.mode==='db')await this.col.doc(id).delete()}catch(e){}},
-async update(id,patch){try{if(this.mode==='api')await fetch(API,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...patch})});else if(this.mode==='db')await this.col.doc(id).update(patch)}catch(e){}}};
+async add(m){if(this.mode==='api')return enqueue('POST',m);try{if(this.mode==='db')await this.col.doc(m.id).set(m)}catch(e){}},
+async remove(id){if(this.mode==='api')return enqueue('DELETE',{id});try{if(this.mode==='db')await this.col.doc(id).delete()}catch(e){}},
+async update(id,patch){if(this.mode==='api')return enqueue('PATCH',{id,...patch});try{if(this.mode==='db')await this.col.doc(id).update(patch)}catch(e){}}};
 async function save(m){msgs.push(m);render(m.id);bump();Store.add(m)}
-let first=true;
-function apply(list){const prev=new Set(msgs.map(m=>m.id));msgs=list;msgs.forEach(m=>{if(m.read)read.add(m.id)});const added=msgs.find(m=>!prev.has(m.id));render(!first&&added?added.id:null);if(!first&&added)bump();first=false;if(celebrated&&msgs.some(m=>!read.has(m.id)))celebrated=false}
+let first=true,lastSig='';
+function apply(list){const pend=new Set(queue.map(o=>o.body.id)),gone=new Set(queue.filter(o=>o.method==='DELETE').map(o=>o.body.id));
+list=list.filter(m=>!gone.has(m.id));
+queue.forEach(o=>{if(o.method==='POST'&&!list.some(m=>m.id===o.body.id))list.push({read:false,...o.body})});
+const sig=JSON.stringify(list.map(m=>[m.id,m.nick,m.text,m.read]))+[...read].join();if(!first&&sig===lastSig)return;lastSig=sig;
+const prev=new Set(msgs.map(m=>m.id));msgs=list;msgs.forEach(m=>{if(m.read&&!pend.has(m.id))read.add(m.id)});const added=msgs.find(m=>!prev.has(m.id));render(!first&&added?added.id:null);if(!first&&added)bump();first=false;if(celebrated&&msgs.some(m=>!read.has(m.id)))celebrated=false}
 (async()=>{await Store.init();Store.subscribe(apply)})();
 render();
 </script></body></html>
