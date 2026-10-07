@@ -155,10 +155,13 @@ const r=pk.getBoundingClientRect();spawn(6+taps*4,r.left+r.width/2,r.top+r.heigh
 ov.querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('on',i<taps));$('#sf').style.transform=`rotateX(${taps*-14}deg)`;$('#ps').style.transform=`scale(${1+taps*.12})`;
 if(taps<NEED){$('#hint').textContent=NEED-taps===1?'One more…':'Keep going…';return}
 busy=true;$('#hint').textContent='✨';setTimeout(reveal,320)};
-function reveal(){ov.innerHTML=`<div class="env"><div class="flap"></div><div class="note ${old?'old':''}"><div class="from">from</div><h2 class="serif">${esc(m.nick||'Anonymous')}</h2><p><span class="t"></span><span class="h">${esc(m.text)}</span></p>${old?'<button class="btn ghost" id="cl">Close</button>':'<button class="btn" id="mr">Mark as Read ❤️</button><button class="btn ghost" id="cl">Later</button>'}</div></div>`;
+function reveal(){ov.innerHTML=`<div class="env"><div class="flap"></div><div class="note ${old?'old':''}"><div class="from">from</div><h2 class="serif">${esc(m.nick||'Anonymous')}</h2><p><span class="t"></span><span class="h">${esc(m.text)}</span></p>${old?'<button class="btn" id="cl">Close</button><button class="btn ghost" id="rm">Remove 🗑</button>':'<button class="btn" id="mr">Mark as Read ❤️</button><button class="btn ghost" id="cl">Later</button>'}</div></div>`;
 if(old)ov.querySelector('.flap').remove();
 if(!old)setTimeout(()=>spawn(24,innerWidth/2,innerHeight/2,true),400);
 const note=ov.querySelector('.note');$('#cl').onclick=close;
+const rm=$('#rm');if(rm)rm.onclick=()=>{ty++;ov.innerHTML=`<div class="frm"><h2 class="serif">Remove this message? 🗑</h2><input id="rp" type="password" placeholder="Password" autocomplete="off"><div id="msg"></div><button class="btn" id="rgo" type="button">Remove</button><button class="btn ghost" id="rno" type="button">Cancel</button></div>`;const f=ov.firstChild;$('#rp').focus();
+const go=()=>{if($('#rp').value==='0'){msgs=msgs.filter(x=>x.id!==m.id);read.delete(m.id);LS.set('bday_read',[...read]);Store.remove(m.id);close();render()}else{$('#msg').textContent='Nice try 👀';f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');$('#rp').value=''}};
+$('#rgo').onclick=go;$('#rp').onkeydown=e=>{if(e.key==='Enter')go()};$('#rno').onclick=close};
 setTimeout(()=>typeInto(note.querySelector('p'),m.text,()=>note.classList.add('done')),old?500:1100);
 const mr=$('#mr');if(mr)mr.onclick=()=>{ty++;note.classList.add('away');spawn(18,innerWidth/2,innerHeight/2,true,'✦');setTimeout(()=>{read.add(m.id);LS.set('bday_read',[...read]);Store.update(m.id,{read:true});close();render();bump();checkEnd()},650)}}}
 function checkEnd(){if(msgs.length&&msgs.every(m=>read.has(m.id))&&!celebrated){celebrated=true;setTimeout(()=>{for(let i=0;i<4;i++)setTimeout(()=>spawn(40,Math.random()*W,H*.4,true,sy[i%4]),i*350);$('#final').scrollIntoView({behavior:'smooth',block:'center'})},500)}}
@@ -182,6 +185,7 @@ try{const db=await claude.use('db');if(db){this.col=db.collection('msgs');this.m
 subscribe(cb){if(this.mode==='api'){const pull=async()=>{if(document.hidden)return;try{const r=await fetch(API,{cache:'no-store'});cb(await r.json())}catch(e){}};pull();setInterval(pull,15000)}
 else if(this.mode==='db')this.col.onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),()=>{});else cb([])},
 async add(m){try{if(this.mode==='api')await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(m)});else if(this.mode==='db')await this.col.doc(m.id).set(m)}catch(e){}},
+async remove(id){try{if(this.mode==='api')await fetch(API,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});else if(this.mode==='db')await this.col.doc(id).delete()}catch(e){}},
 async update(id,patch){try{if(this.mode==='api')await fetch(API,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...patch})});else if(this.mode==='db')await this.col.doc(id).update(patch)}catch(e){}}};
 async function save(m){msgs.push(m);render(m.id);bump();Store.add(m)}
 let first=true;
